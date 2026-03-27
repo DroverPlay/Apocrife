@@ -1,11 +1,9 @@
-﻿using Photon.Pun;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace Muryotaisu
 {
-    public class MuryotaisuController : MonoBehaviourPunCallbacks
+    public class MuryotaisuController : MonoBehaviour
     {
         private Animator animator;
 
@@ -41,7 +39,6 @@ namespace Muryotaisu
         public Transform thirdPersonCameraPosition;
 
         private CameraController cameraController;
-        private PhotonView photonView;
 
         public CharacterController Controller => controller;
         public bool IsGrounded => controller != null && controller.isGrounded;
@@ -51,14 +48,10 @@ namespace Muryotaisu
         {
             animator = GetComponent<Animator>();
             controller = GetComponent<CharacterController>();
-            photonView = GetComponent<PhotonView>();
 
-            if (photonView != null && !photonView.IsMine)
-            {
-                controller.enabled = false;
-                enabled = false;
-                return;
-            }
+            // Для однопользовательской игры всегда включено
+            controller.enabled = true;
+            enabled = true;
 
             cameraController = Camera.main.GetComponent<CameraController>();
             currentSpeed = walkSpeed;
@@ -66,9 +59,7 @@ namespace Muryotaisu
 
         void Update()
         {
-
             if (!controller.enabled) return;
-            if (photonView != null && !photonView.IsMine) return;
 
             HandleInput();
             HandleStamina();
@@ -227,7 +218,6 @@ namespace Muryotaisu
         private void ProcessMovement()
         {
             if (!controller.enabled) return;
-            if (photonView != null && !photonView.IsMine) return;
 
             inputDirection.Normalize();
 
@@ -268,14 +258,13 @@ namespace Muryotaisu
                 }
                 else
                 {
-                    // При движении вперед или строго вбок - обычный поворот
+                    // При движении вперед или строго вбок - обычный поворт
                     Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
                     float lerpSpeed = isRunning ? rotationSpeed * 1.5f : rotationSpeed;
                     transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, lerpSpeed * Time.deltaTime);
                 }
             }
         }
-
 
         private bool IsInFirstPersonMode()
         {

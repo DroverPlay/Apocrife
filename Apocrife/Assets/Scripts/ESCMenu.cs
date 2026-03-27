@@ -1,25 +1,29 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Photon.Pun;
+using Muryotaisu;
 
 public class ESCMenu : MonoBehaviour
 {
     [SerializeField] private GameObject _menu;
     [SerializeField] private string _menuSceneName = "MainMenu";
 
-    private GameNetworkManager _gameNetworkManager;
     private bool _isOpen = false;
+    private CameraController _cameraController;
+    private MuryotaisuController _playerController;
 
     void Start()
     {
-        // Находим GameNetworkManager
-        _gameNetworkManager = GameNetworkManager.Instance;
+        // Находим контроллеры
+        _cameraController = FindObjectOfType<CameraController>();
+        _playerController = FindObjectOfType<MuryotaisuController>();
 
         // Скрываем меню при старте
         if (_menu != null)
             _menu.SetActive(false);
+
+        // Блокируем курсор в начале игры
+        LockCursor();
     }
 
     private void Update()
@@ -37,58 +41,84 @@ public class ESCMenu : MonoBehaviour
         if (_menu != null)
             _menu.SetActive(_isOpen);
 
-        // Управление курсором
-        if (_gameNetworkManager != null)
+        if (_isOpen)
         {
-            if (_isOpen)
-            {
-                _gameNetworkManager.UnlockCursor();
-            }
-            else
-            {
-                _gameNetworkManager.LockCursor();
-            }
+            // Меню открыто - пауза и разблокировка курсора
+            Time.timeScale = 0f;
+            UnlockCursor();
+
+            // Отключаем управление камерой и персонажем
+            DisableControls();
         }
         else
         {
-            // Fallback если GameNetworkManager не найден
-            if (_isOpen)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
+            // Меню закрыто - возобновление и блокировка курсора
+            Time.timeScale = 1f;
+            LockCursor();
+
+            // Включаем управление камерой и персонажем
+            EnableControls();
+        }
+    }
+
+    private void DisableControls()
+    {
+        // Отключаем управление камерой
+        if (_cameraController != null)
+        {
+            _cameraController.enabled = false;
+        }
+        else
+        {
+            // Ищем снова если не нашли в Start
+            _cameraController = FindObjectOfType<CameraController>();
+            if (_cameraController != null)
+                _cameraController.enabled = false;
+        }
+
+        // Отключаем управление персонажем
+        if (_playerController != null)
+        {
+            _playerController.enabled = false;
+        }
+        else
+        {
+            _playerController = FindObjectOfType<MuryotaisuController>();
+            if (_playerController != null)
+                _playerController.enabled = false;
+        }
+    }
+
+    private void EnableControls()
+    {
+        // Включаем управление камерой
+        if (_cameraController != null)
+        {
+            _cameraController.enabled = true;
+        }
+
+        // Включаем управление персонажем
+        if (_playerController != null)
+        {
+            _playerController.enabled = true;
         }
     }
 
     public void BackToMenu()
     {
-        DisconnectAndReturnToMenu();
+        ReturnToMenu();
     }
 
-    public void DisconnectAndReturnToMenu()
+    public void ReturnToMenu()
     {
-        Debug.Log("Отключаемся от сервера и возвращаемся в меню...");
+        Debug.Log("Возвращаемся в главное меню...");
 
-        // Используем GameNetworkManager для корректного отключения
-        if (_gameNetworkManager != null)
-        {
-            _gameNetworkManager.ReturnToMenu("Выход в меню");
-        }
-        else
-        {
-            // Fallback если GameNetworkManager не найден
-            if (PhotonNetwork.IsConnected)
-            {
-                PhotonNetwork.Disconnect();
-            }
-            PhotonNetwork.LoadLevel(_menuSceneName);
-            SceneManager.LoadScene(_menuSceneName);
-        }
+        // Снимаем паузу и включаем управление перед загрузкой
+        Time.timeScale = 1f;
+        EnableControls();
+
+        // Загружаем главное меню
+        SceneManager.LoadScene(_menuSceneName);
     }
 
     public void ResumeGame()
@@ -100,16 +130,32 @@ public class ESCMenu : MonoBehaviour
     {
         Debug.Log("Выход из игры");
 
-        // Корректно отключаемся от сервера перед выходом
-        if (PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.Disconnect();
-        }
+        // Снимаем паузу перед выходом
+        Time.timeScale = 1f;
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
+    }
+
+    // Методы для управления курсором
+    private void LockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    private void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // Автоматически разблокируем курсор при выходе из игры
+    void OnApplicationQuit()
+    {
+        UnlockCursor();
     }
 }

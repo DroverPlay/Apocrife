@@ -61,30 +61,40 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Photon\PhotonRealtime\Demos\DemoLoadBalancing\ConnectAndJoinRandomLb.cs" />
+    <Compile Include="Assets\Scripts\Character\ButtonGenerator.cs" />
     <Compile Include="Assets\Scripts\ESCMenu.cs" />
     <Compile Include="Assets\Scripts\PlayerSpawner.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Spawn\ScenePortal.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\ConnectToLobby.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\AppSettingsExtensions.cs" />
     <Compile Include="Assets\Scripts\MenuManager.cs" />
     <Compile Include="Assets\Scripts\LoadManager.cs" />
+    <Compile Include="Assets\Scripts\Character\GenderSwitcherUI.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\Common\OnStartDelete.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\ChatGui.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\PControlDisable.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\ChannelSelector.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\ChatAppIdCheckerUI.cs" />
-    <Compile Include="Assets\Scripts\Multiplayer2\Connection.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\NetworkManagerAutoCreator.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\Common\TextToggleIsOnTransition.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\FriendItem.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\GameNetworkManager.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Spawn\SpawnPoint.cs" />
+    <Compile Include="Assets\Scripts\Character\RotationInInsp.cs" />
     <Compile Include="Assets\Scripts\AdvancedHeadBobController.cs" />
     <Compile Include="Assets\Scripts\MuryotaisuController.cs" />
+    <Compile Include="Assets\Scripts\Mechanics\Spawn\PersistentObject.cs" />
     <Compile Include="Assets\Kevin Iglesias\Human Animations\Scripts\SpineProxy.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\CheckIsMine.cs" />
+    <Compile Include="Assets\AA_UniversalCharacter\Scripts\CustomButton.cs" />
+    <Compile Include="Assets\AA_UniversalCharacter\Scripts\ModulesShaker.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\IgnoreUiRaycastWhenInactive.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\Common\EventSystemSpawner.cs" />
-    <Compile Include="Assets\Scripts\Multiplayer2\ConnectionMenu.cs" />
+    <Compile Include="Assets\Scripts\Save\CharacterSaveData.cs" />
     <Compile Include="Assets\Scripts\CameraController.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\DemoChat\NamePickGui.cs" />
+    <Compile Include="Assets\Scripts\Player\PlayerAnimation.cs" />
     <Compile Include="Assets\Photon\PhotonChat\Demos\Common\TextButtonTransition.cs" />
   </ItemGroup>
   <ItemGroup>

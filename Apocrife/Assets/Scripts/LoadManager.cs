@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Photon.Pun;
 using TMPro;
 
 public class LoadManager : MonoBehaviour
@@ -14,10 +13,9 @@ public class LoadManager : MonoBehaviour
     [SerializeField] private Slider _loadingBar;
     [SerializeField] private TMP_Text _statusText;
 
-    [Header("Сетевая загрузка")]
-    public bool useNetworkLoading = false;
+    [Header("Настройки")]
     public float minLoadingTime = 2f;
-    public string targetSceneName = "Game"; // Добавляем имя сцены
+    public string targetSceneName = "Game";
 
     private Image _displayImage;
     private int _currentImageIndex = 0;
@@ -45,23 +43,15 @@ public class LoadManager : MonoBehaviour
     {
         _displayImage = GetComponent<Image>();
         _canvasGroup = GetComponent<CanvasGroup>();
-
-        // Скрываем экран загрузки при старте
-        //if (_canvasGroup != null)
-        //    _canvasGroup.alpha = 0;
-
-        //if (_loadingBar != null)
-        //    _loadingBar.gameObject.SetActive(false);
     }
 
-    // Новый метод для сетевой загрузки по имени сцены
-    public void StartNetworkLoading(string sceneName)
+    // Основной метод для загрузки сцены
+    public void StartLoading(string sceneName)
     {
         if (_isLoading) return;
 
         _isLoading = true;
         _loadingStartTime = Time.time;
-        useNetworkLoading = true;
         targetSceneName = sceneName;
 
         // Показываем экран загрузки
@@ -76,25 +66,13 @@ public class LoadManager : MonoBehaviour
 
         // Запускаем корутины
         StartCoroutine(ImageTransitionRoutine());
-        StartCoroutine(LoadNetworkSceneAsync());
+        StartCoroutine(LoadSceneRoutine());
     }
 
-    // Старый метод для загрузки по индексу (оставляем для совместимости)
+    // Старый метод для совместимости
     public void StartLocalLoading(int sceneIndex)
     {
-        if (_isLoading) return;
-
-        _isLoading = true;
-        useNetworkLoading = false;
-
-        if (_canvasGroup != null)
-            _canvasGroup.alpha = 1;
-
-        if (_loadingBar != null)
-            _loadingBar.gameObject.SetActive(true);
-
-        StartCoroutine(ImageTransitionRoutine());
-        StartCoroutine(LoadSceneAsync(sceneIndex));
+        StartLoading(SceneManager.GetSceneByBuildIndex(sceneIndex).name);
     }
 
     IEnumerator ImageTransitionRoutine()
@@ -144,54 +122,50 @@ public class LoadManager : MonoBehaviour
         _canvasGroup.alpha = targetAlpha;
     }
 
-    // Измененный метод для сетевой загрузки
-    IEnumerator LoadNetworkSceneAsync()
+    IEnumerator LoadSceneRoutine()
     {
         float progress = 0f;
         float elapsedTime = 0f;
         string lastStatus = "";
 
-        UpdateStatus("Подключение к серверу...");
+        UpdateStatus("Подготовка...");
 
-        // Ждем подключения к Photon и минимальное время загрузки
-        while (elapsedTime < minLoadingTime || progress < 0.9f)
+        // Имитация загрузки с минимальным временем показа
+        while (elapsedTime < minLoadingTime)
         {
             elapsedTime += Time.deltaTime;
-
-            // Прогресс на основе времени и состояния сети
-            float timeProgress = Mathf.Clamp01(elapsedTime / minLoadingTime);
-            float networkProgress = GetNetworkProgress();
-
-            progress = Mathf.Max(timeProgress, networkProgress);
+            progress = Mathf.Clamp01(elapsedTime / minLoadingTime);
 
             if (_loadingBar != null)
                 _loadingBar.value = progress;
 
             string newStatus = GetLoadingStatus(progress);
-            if(newStatus != lastStatus)
+            if (newStatus != lastStatus)
             {
                 UpdateStatus(newStatus);
                 lastStatus = newStatus;
             }
-            //UpdateLoadingStatus(progress);
+
             yield return null;
         }
 
-        // Все готово - загружаем сцену по имени
+        // Загружаем сцену
         if (!string.IsNullOrEmpty(targetSceneName))
         {
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(targetSceneName);
             asyncLoad.allowSceneActivation = false;
 
-            // Ждем завершения загрузки сцены
+            // Обновляем прогресс-бар во время загрузки
             while (!asyncLoad.isDone)
             {
+                progress = Mathf.Clamp01(asyncLoad.progress / 0.9f); // Unity загружает до 0.9
+
                 if (_loadingBar != null)
-                    _loadingBar.value = asyncLoad.progress;
+                    _loadingBar.value = progress;
 
                 if (asyncLoad.progress >= 0.9f)
                 {
-                    UpdateStatus("Завершение подключения...");
+                    UpdateStatus("Завершение загрузки...");
                     asyncLoad.allowSceneActivation = true;
                 }
 
@@ -206,53 +180,18 @@ public class LoadManager : MonoBehaviour
         CompleteLoading();
     }
 
-    // Старый метод для локальной загрузки по индексу
-    IEnumerator LoadSceneAsync(int sceneIndex)
+    private string GetLoadingStatus(float progress)
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneIndex);
-        asyncLoad.allowSceneActivation = false;
-
-        UpdateStatus("Загрузка...");
-
-        while (asyncLoad.progress < 0.9f)
-        {
-            if (_loadingBar != null)
-                _loadingBar.value = asyncLoad.progress;
-
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(1f);
-        asyncLoad.allowSceneActivation = true;
-        CompleteLoading();
-    }
-
-    private float GetNetworkProgress()
-    {
-        if (!PhotonNetwork.IsConnected)
-            return 0.2f; // Подключение к серверу
-
-        if (!PhotonNetwork.InLobby)
-            return 0.4f; // Подключение к лобби
-
-        if (!PhotonNetwork.InRoom)
-            return 0.7f; // Поиск/создание комнаты
-
-        return 0.9f; // Подключение к игре
-    }
-
-    private void UpdateLoadingStatus(float progress)
-    {
-        string status = "Подключение к серверу...";
-
-        if (progress > 0.2f && progress <= 0.4f)
-            status = "Соединение установлено...";
-        else if (progress > 0.4f && progress <= 0.7f)
-            status = "Поиск игровой сессии...";
-        else if (progress > 0.7f)
-            status = "Подключение к комнате...";
-
-        UpdateStatus(status);
+        if (progress <= 0.2f)
+            return "Подготовка...";
+        else if (progress <= 0.4f)
+            return "Загрузка ресурсов...";
+        else if (progress <= 0.7f)
+            return "Инициализация...";
+        else if (progress <= 0.9f)
+            return "Завершение...";
+        else
+            return "Готово!";
     }
 
     public void UpdateStatus(string status)
@@ -297,17 +236,10 @@ public class LoadManager : MonoBehaviour
         if (_loadingBar != null)
             _loadingBar.gameObject.SetActive(false);
     }
-    private string GetLoadingStatus(float progress)
+
+    // Для обратной совместимости
+    public void StartNetworkLoading(string sceneName)
     {
-        if (progress <= 0.2f)
-            return "Подключение к серверу...";
-        else if (progress <= 0.4f)
-            return "Соединение установлено...";
-        else if (progress <= 0.7f)
-            return "Поиск игровой сессии...";
-        else if (progress <= 0.9f)
-            return "Подключение к комнате...";
-        else
-            return "Завершение подключения...";
+        StartLoading(sceneName);
     }
 }

@@ -340,12 +340,11 @@
 "Assets/Scripts/CameraController.cs"
 "Assets/Scripts/ESCMenu.cs"
 "Assets/Scripts/LoadManager.cs"
+"Assets/Scripts/MenuManager.cs"
 "Assets/Scripts/Multiplayer/CheckIsMine.cs"
 "Assets/Scripts/Multiplayer/ConnectToLobby.cs"
 "Assets/Scripts/Multiplayer/GameNetworkManager.cs"
 "Assets/Scripts/Multiplayer/NetworkManagerAutoCreator.cs"
-"Assets/Scripts/Multiplayer2/Connection.cs"
-"Assets/Scripts/Multiplayer2/ConnectionMenu.cs"
 "Assets/Scripts/MuryotaisuController.cs"
 "Assets/Scripts/PlayerSpawner.cs"
 -langversion:9.0

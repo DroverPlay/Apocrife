@@ -393,6 +393,12 @@
 "Assets/Scripts/Character/RotationInInsp.cs"
 "Assets/Scripts/ESCMenu.cs"
 "Assets/Scripts/LoadManager.cs"
+"Assets/Scripts/Mechanics/Castomization/CharacterAppearanceData.cs"
+"Assets/Scripts/Mechanics/Castomization/CharacterMeshSlot.cs"
+"Assets/Scripts/Mechanics/Castomization/CharacterMeshUI.cs"
+"Assets/Scripts/Mechanics/Castomization/CharacterPartCategory.cs"
+"Assets/Scripts/Mechanics/Castomization/TestHairSwitch.cs"
+"Assets/Scripts/Mechanics/Castomization/UniversalCharacterMeshCustomizer.cs"
 "Assets/Scripts/Mechanics/PControlDisable.cs"
 "Assets/Scripts/Mechanics/Spawn/PersistentObject.cs"
 "Assets/Scripts/Mechanics/Spawn/ScenePortal.cs"
@@ -405,8 +411,9 @@
 "Assets/Scripts/MuryotaisuController.cs"
 "Assets/Scripts/Player/PlayerAnimation.cs"
 "Assets/Scripts/Player/PlayerController.cs"
-"Assets/Scripts/PlayerSpawner.cs"
 "Assets/Scripts/Save/CharacterSaveData.cs"
+"Assets/Scripts/Save/CharacterSaveSystem.cs"
+"Assets/Scripts/Save/CharacterSpawner.cs"
 -langversion:9.0
 
 /deterministic

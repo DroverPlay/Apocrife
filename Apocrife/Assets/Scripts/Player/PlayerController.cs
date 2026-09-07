@@ -68,6 +68,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (controller == null || !controller.enabled) return;
+
         HandleGroundCheck();
         HandleMovementAndGravity();
         HandleJump();
